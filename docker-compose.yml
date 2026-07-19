@@ -1,49 +1,85 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  redis:
-    image: redis:latest
-    container_name: anime_redis
-    restart: always
-
-  db:
-    image: postgres:15-alpine
-    container_name: anime_db
-    restart: always
+  postgres:
+    image: postgres:16-alpine
+    container_name: mixtape-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  backend: 
-    build: ./backend
-    container_name: anime_backend
-    restart: always
+  redis:
+    image: redis:7-alpine
+    container_name: mixtape-redis
+    ports:
+      - "6379:6379"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: mixtape-keycloak
+    command: ["start-dev", "--import-realm"]
     environment:
-      - REDIS_HOST=redis
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    ports:
+      - "8080:8080"
     depends_on:
-      - redis
-      - db
+      postgres:
+        condition: service_healthy
+
+  backend:
+    build: ./backend
+    container_name: mixtape-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/animedb
+      REDIS_URL: redis://redis:6379/0
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: anime-mixtape
+      KEYCLOAK_CLIENT_ID: anime-frontend
+      KEYCLOAK_ADMIN_CLIENT_ID: anime-backend
+      KEYCLOAK_ADMIN_CLIENT_SECRET: backend-service-secret
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      keycloak:
+        condition: service_started
 
   frontend:
-    build: ./frontend
-    container_name: anime_frontend
-    restart: always
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
-  proxy:
-    image: nginx:alpine
-    container_name: anime_proxy
-    restart: always
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8000
+        VITE_KEYCLOAK_URL: http://localhost:8080
+        VITE_KEYCLOAK_REALM: anime-mixtape
+        VITE_KEYCLOAK_CLIENT_ID: anime-frontend
+    container_name: mixtape-frontend
     ports:
-      - "8080:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./media:/media:ro
+      - "3000:80"
     depends_on:
-      - frontend
       - backend
 
 volumes:
