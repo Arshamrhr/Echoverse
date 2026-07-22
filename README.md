@@ -1,4 +1,4 @@
-# Anime Mixtape — Dockerized Stack
+# Echoverse — Dockerized Stack
 
 Services: **Keycloak** (identity/JWT) → **FastAPI** (validates JWT, talks to Postgres + Redis) → **Postgres** (comments/likes) → **Redis** (caches the most-liked comment per anime) → **React/Vite** (served by nginx).
 
@@ -27,12 +27,12 @@ First boot takes a minute or two (Keycloak has to start, connect to its DB, and 
 Keycloak's realm-import doesn't reliably wire up service-account role assignments or hand you back a generated client secret from a plain JSON file, so do these once after first boot:
 
 **a) Assign the backend permission to create users**
-1. Admin console → select the **anime-mixtape** realm.
-2. **Clients → anime-backend → Service accounts roles**.
+1. Admin console → select the **echoverse** realm.
+2. **Clients → echoverse-backend → Service accounts roles**.
 3. **Assign role** → filter by clients → **realm-management** → assign **manage-users**.
 
 **b) Get the backend's client secret into your `.env`**
-1. **Clients → anime-backend → Credentials tab**.
+1. **Clients → echoverse-backend → Credentials tab**.
 2. Copy the **Client secret** shown there (or click "Regenerate" for a fresh one).
 3. Paste it into `.env` as `KEYCLOAK_ADMIN_CLIENT_SECRET=...`.
 4. Restart just the backend so it picks up the new value: `docker compose up -d --build backend`.
@@ -55,14 +55,14 @@ Other things worth checking if it still fails:
 
 ## 5. How the pieces fit together
 
-1. **Sign up**: React → `POST /auth/register` (FastAPI) → FastAPI gets an admin token via `client_credentials` (using `anime-backend`) → creates the user in Keycloak via its Admin API.
-2. **Log in**: React → Keycloak's token endpoint directly, using the `password` grant (Direct Access Grant) on the public `anime-frontend` client → gets back a JWT access token, stored in `localStorage`.
-3. **Posting/liking a comment**: React sends the JWT in `Authorization: Bearer <token>` to FastAPI → FastAPI validates the token's signature against Keycloak's JWKS endpoint (`/realms/anime-mixtape/protocol/openid-connect/certs`), checks issuer + expiry, and pulls the user id (`sub`) and username off the token claims → writes the comment to Postgres with that user id attached.
+1. **Sign up**: React → `POST /auth/register` (FastAPI) → FastAPI gets an admin token via `client_credentials` (using `echoverse-backend`) → creates the user in Keycloak via its Admin API.
+2. **Log in**: React → Keycloak's token endpoint directly, using the `password` grant (Direct Access Grant) on the public `echoverse-frontend` client → gets back a JWT access token, stored in `localStorage`.
+3. **Posting/liking a comment**: React sends the JWT in `Authorization: Bearer <token>` to FastAPI → FastAPI validates the token's signature against Keycloak's JWKS endpoint (`/realms/echoverse/protocol/openid-connect/certs`), checks issuer + expiry, and pulls the user id (`sub`) and username off the token claims → writes the comment to Postgres with that user id attached.
 4. **Top comment cache**: every time a like changes the ranking, FastAPI recomputes the most-liked comment for that anime and writes it to Redis (`top_comment:{anime_id}`). Reads check Redis first and only fall back to Postgres on a cache miss.
 
 ## 6. Database schema changes (Alembic)
 
-The `comments`/`comment_likes` tables are no longer created by a one-off SQL script — they're managed by **Alembic migrations** in `backend/migrations/versions/`. The backend's `entrypoint.sh` runs `alembic upgrade head` automatically every time the container starts, before the API comes up. Postgres's `init.sh` now only creates the two *databases* themselves (`keycloak`, `animedb`) — something Alembic can't do, since a migration runs inside an already-existing database.
+The `comments`/`comment_likes` tables are no longer created by a one-off SQL script — they're managed by **Alembic migrations** in `backend/migrations/versions/`. The backend's `entrypoint.sh` runs `alembic upgrade head` automatically every time the container starts, before the API comes up. Postgres's `init.sh` now only creates the two *databases* themselves (`keycloak`, `Echoverse_db`) — something Alembic can't do, since a migration runs inside an already-existing database.
 
 **When you change a model** (add a column, add a table, etc. in `backend/app/models.py`):
 

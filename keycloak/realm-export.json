@@ -1,12 +1,12 @@
 {
-  "realm": "anime-mixtape",
+  "realm": "echoverse",
   "enabled": true,
   "sslRequired": "none",
   "registrationAllowed": false,
   "clients": [
     {
-      "clientId": "anime-frontend",
-      "name": "Anime Mixtape Frontend",
+      "clientId": "echoverse-frontend",
+      "name": "Echoverse Frontend",
       "publicClient": true,
       "protocol": "openid-connect",
       "enabled": true,
@@ -17,8 +17,8 @@
       "webOrigins": ["*"]
     },
     {
-      "clientId": "anime-backend",
-      "name": "Anime Mixtape Backend (service account)",
+      "clientId": "echoverse-backend",
+      "name": "Echoverse Backend (service account)",
       "publicClient": false,
       "protocol": "openid-connect",
       "enabled": true,

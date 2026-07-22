@@ -7,7 +7,7 @@ from .routers import auth, comments
 # Schema is managed by Alembic migrations now (see migrations/), applied by
 # the container entrypoint before this app starts - not by create_all().
 
-app = FastAPI(title="Anime Mixtape API")
+app = FastAPI(title="Echoverse API")
 
 app.add_middleware(
     CORSMiddleware,

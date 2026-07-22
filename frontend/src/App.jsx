@@ -507,9 +507,9 @@ export default function App() {
         <div style={{ position: "relative", zIndex: 1, textAlign: "center", marginBottom: 36 }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}><ToriiMark size={54} /></div>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#e8623c", fontFamily: "'Noto Sans', sans-serif", fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10 }}>
-            <Disc3 size={14} /> Anime Mixtape Archive
+            <Disc3 size={14} /> Echoverse Archive
           </div>
-          <h1 style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 700, fontSize: 40, color: "#f2efe9", margin: "0 0 8px", letterSpacing: 1 }}>Anime Mixtape</h1>
+          <h1 style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 700, fontSize: 40, color: "#f2efe9", margin: "0 0 8px", letterSpacing: 1 }}>Echoverse</h1>
           <p style={{ color: "#8d8d97", fontSize: 14, maxWidth: 480, margin: "0 auto", fontFamily: "'Noto Sans', sans-serif" }}>
             An archive of legendary anime alongside their openings, endings, and soundtracks — pick a track and press play
           </p>

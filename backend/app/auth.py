@@ -33,7 +33,7 @@ async def get_current_user(creds: HTTPAuthorizationCredentials = Depends(securit
     Note: Keycloak's default access-token audience is usually "account", not the
     client id, so we don't enforce `aud` here. If you want strict audience
     checks, add a custom "audience" client scope/mapper in Keycloak for
-    anime-frontend and set audience=settings.KEYCLOAK_CLIENT_ID below.
+    echoverse-frontend and set audience=settings.KEYCLOAK_CLIENT_ID below.
     """
     token = creds.credentials
     try:

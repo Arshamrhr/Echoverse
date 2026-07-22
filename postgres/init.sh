@@ -11,5 +11,5 @@ set -e
 # that was already initialized.
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
     SELECT 'CREATE DATABASE keycloak' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'keycloak')\gexec
-    SELECT 'CREATE DATABASE animedb' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'animedb')\gexec
+    SELECT 'CREATE DATABASE Echoverse_db' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'Echoverse_db')\gexec
 EOSQL

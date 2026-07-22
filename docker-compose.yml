@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: mixtape-postgres
+    container_name: echoverse-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -23,12 +23,12 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: mixtape-redis
+    container_name: echoverse-redis
     # Not exposed to the host - only the backend needs it.
 
   keycloak:
     image: keycloak/keycloak:latest
-    container_name: mixtape-keycloak
+    container_name: echoverse-keycloak
     command: ["start-dev", "--import-realm"]
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
@@ -49,14 +49,14 @@ services:
 
   backend:
     build: ./backend
-    container_name: mixtape-backend
+    container_name: echoverse-backend
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/animedb
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/Echoverse_db
       REDIS_URL: redis://redis:6379/0
       KEYCLOAK_URL: http://keycloak:8080
-      KEYCLOAK_REALM: anime-mixtape
-      KEYCLOAK_CLIENT_ID: anime-frontend
-      KEYCLOAK_ADMIN_CLIENT_ID: anime-backend
+      KEYCLOAK_REALM: echoverse
+      KEYCLOAK_CLIENT_ID: echoverse-frontend
+      KEYCLOAK_ADMIN_CLIENT_ID: echoverse-backend
       KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET}
       CORS_ORIGINS: http://localhost:5173,http://localhost:3000
     ports:
@@ -75,9 +75,9 @@ services:
       args:
         VITE_API_URL: http://localhost:8000
         VITE_KEYCLOAK_URL: http://localhost:8080
-        VITE_KEYCLOAK_REALM: anime-mixtape
-        VITE_KEYCLOAK_CLIENT_ID: anime-frontend
-    container_name: mixtape-frontend
+        VITE_KEYCLOAK_REALM: echoverse
+        VITE_KEYCLOAK_CLIENT_ID: echoverse-frontend
+    container_name: echoverse-frontend
     ports:
       - "3000:80"
     depends_on:

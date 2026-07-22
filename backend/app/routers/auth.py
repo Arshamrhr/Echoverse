@@ -9,7 +9,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 async def _get_admin_token() -> str:
     """
-    Client-credentials grant for the confidential 'anime-backend' client.
+    Client-credentials grant for the confidential 'echoverse-backend' client.
     Requires that client's service account to have the 'manage-users' role
     from the 'realm-management' client (see README for the one-time setup step).
     """
