@@ -1,0 +1,14 @@
+# Secrets - never commit
+.env
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Python
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+
+# OS
+.DS_Store

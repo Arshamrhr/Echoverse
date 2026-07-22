@@ -1,0 +1,31 @@
+{
+  "realm": "anime-mixtape",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "clients": [
+    {
+      "clientId": "anime-frontend",
+      "name": "Anime Mixtape Frontend",
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "enabled": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"]
+    },
+    {
+      "clientId": "anime-backend",
+      "name": "Anime Mixtape Backend (service account)",
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "enabled": true,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false
+    }
+  ]
+}
