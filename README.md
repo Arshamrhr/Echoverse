@@ -1,3 +1,29 @@
+# Echoverse 🎧🎬
+
+**Echoverse** is an immersive media archive and audio streaming platform designed for anime, movie, and TV show enthusiasts. It provides a curated space where users can explore popular series and films while seamlessly streaming or downloading their iconic soundtracks—including openings (OPs), endings (EDs), background original soundtracks (OSTs), and trailer themes.
+
+---
+
+## ✨ Key Features
+
+* **Comprehensive Media Archive:** Discover and explore detailed profiles for movies, TV series, and anime titles.
+* **Integrated Audio Player:** Stream high-quality theme songs, soundtrack tracks, and trailer scores directly within the platform.
+* **Track Downloads:** Easily download your favorite tracks for offline listening.
+* **Community Comments & Engagement:** Connect with fellow fans, leave comments, and share thoughts on your favorite shows and soundtracks.
+* **Enterprise Authentication:** Secure user authentication and identity management powered by Keycloak (OAuth2 / OIDC).
+* **Modern Responsive Interface:** A clean, dark-themed, cinematic UI built with React and Vite.
+* **Microservices Architecture:** Fully containerized with Docker & Docker Compose utilizing FastAPI, PostgreSQL, Redis, and Nginx.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend:** React, Vite, Nginx, Custom CSS
+* **Backend:** FastAPI (Python), SQLAlchemy, Alembic Migrations
+* **Identity & Security:** Keycloak
+* **Database & Cache:** PostgreSQL, Redis
+* **DevOps & Containerization:** Docker, Docker Compose
+
 # Echoverse — Dockerized Stack
 
 Services: **Keycloak** (identity/JWT) → **FastAPI** (validates JWT, talks to Postgres + Redis) → **Postgres** (comments/likes) → **Redis** (caches the most-liked comment per anime) → **React/Vite** (served by nginx).
@@ -62,7 +88,7 @@ Other things worth checking if it still fails:
 
 ## 6. Database schema changes (Alembic)
 
-The `comments`/`comment_likes` tables are no longer created by a one-off SQL script — they're managed by **Alembic migrations** in `backend/migrations/versions/`. The backend's `entrypoint.sh` runs `alembic upgrade head` automatically every time the container starts, before the API comes up. Postgres's `init.sh` now only creates the two *databases* themselves (`keycloak`, `Echoverse_db`) — something Alembic can't do, since a migration runs inside an already-existing database.
+The `comments`/`comment_likes` tables are no longer created by a one-off SQL script — they're managed by **Alembic migrations** in `backend/migrations/versions/`. The backend's `entrypoint.sh` runs `alembic upgrade head` automatically every time the container starts, before the API comes up. Postgres's `init.sh` now only creates the two *databases* themselves (`keycloak`, `echoverse_db`) — something Alembic can't do, since a migration runs inside an already-existing database.
 
 **When you change a model** (add a column, add a table, etc. in `backend/app/models.py`):
 
