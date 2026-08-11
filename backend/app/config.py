@@ -1,11 +1,17 @@
 from pydantic_settings import BaseSettings
+from sqlalchemy.engine import URL
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://postgres:postgres@postgres:5432/Echoverse_db"
-    REDIS_URL: str = "redis://redis:6379/0"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_HOST: str = "postgres-service"
+    POSTGRES_PORT: int = 5432
+    POSTGRES_DB: str = "Echoverse_db"
 
-    KEYCLOAK_URL: str = "http://keycloak:8080"
+    REDIS_URL: str = "redis://redis-service:6379/0"
+
+    KEYCLOAK_URL: str = "http://keycloak-service:8080"
     KEYCLOAK_REALM: str = "echoverse"
     KEYCLOAK_CLIENT_ID: str = "echoverse-frontend"
 
@@ -18,6 +24,24 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+
+    @property
+    def DATABASE_URL(self) -> str:
+        """
+        Built with SQLAlchemy's URL.create() instead of a raw interpolated
+        string. This automatically percent-encodes special characters in the
+        password (@, :, /, etc.), so a password like "P@ssw0rd" can never be
+        misparsed as user "..." + host "ssw0rd@postgres-service" - which is
+        exactly what caused the "could not translate host name" error.
+        """
+        return URL.create(
+            drivername="postgresql+psycopg2",
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=self.POSTGRES_HOST,
+            port=self.POSTGRES_PORT,
+            database=self.POSTGRES_DB,
+        ).render_as_string(hide_password=False)
 
 
 settings = Settings()
