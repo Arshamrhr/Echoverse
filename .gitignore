@@ -16,3 +16,6 @@ backend/**/__pycache__/
 
 #media
 media/music/
+
+#agent
+agy-debug.log
