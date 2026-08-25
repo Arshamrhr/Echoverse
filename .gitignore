@@ -1,6 +1,7 @@
 # Secrets - never commit
 .env
-
+.env.local
+.env.k8s
 # Node
 frontend/node_modules/
 frontend/dist/
@@ -12,3 +13,9 @@ backend/**/__pycache__/
 
 # OS
 .DS_Store
+
+#media
+media/music/
+
+#agent
+agy-debug.log

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: echoverse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      initContainers:
+        # منتظر ماندن برای دیتابیس Postgres
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z postgres-service 5432; do echo waiting for postgres; sleep 2; done;']
+        # منتظر ماندن برای سرویس Keycloak
+        - name: wait-for-keycloak
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z keycloak-service 8080; do echo waiting for keycloak; sleep 2; done;']
+      containers:
+        - name: backend
+          image: echoverse-backend:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            # POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB come from the
+            # echoverse-secrets secret below (envFrom) - the same secret
+            # Postgres itself uses, so these can never drift out of sync.
+            # Only the non-secret connection details are set explicitly here.
+            - name: POSTGRES_HOST
+              value: "postgres-service"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: REDIS_URL
+              value: "redis://redis-service:6379/0"
+            - name: KEYCLOAK_URL
+              value: "http://keycloak-service:8080"
+            - name: KEYCLOAK_REALM
+              value: "echoverse"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "echoverse-frontend"
+            - name: KEYCLOAK_ADMIN_CLIENT_ID
+              value: "echoverse-backend"
+          envFrom:
+            - secretRef:
+                name: echoverse-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: echoverse
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - port: 8000
+      targetPort: 8000
